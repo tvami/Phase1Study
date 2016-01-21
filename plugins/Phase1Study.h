@@ -1,10 +1,10 @@
-#ifndef PilotBladeStudy_h
-#define PilotBladeStudy_h
+#ifndef Phase1Study_h
+#define Phase1Study_h
 
-/** \class PilotBladeStudy
+/** \class Phase1Study
  * Author: Tamas Almos Vami
  * Year: 2015
- * Desciption header file of the PilotBladeStudy.cc
+ * Desciption header file of the Phase1Study.cc
  ************************************************************/
 
 // ----------------------------------------------------------------------------------------
@@ -124,12 +124,12 @@ class RectangularPixelTopology;
 class TObject;
 
 
-class PilotBladeStudy : public edm::EDAnalyzer
+class Phase1Study : public edm::EDAnalyzer
 {
  public:
   
-  explicit PilotBladeStudy(const edm::ParameterSet&);
-  virtual ~PilotBladeStudy();
+  explicit Phase1Study(const edm::ParameterSet&);
+  virtual ~Phase1Study();
   virtual void beginJob();
   virtual void endJob();
   virtual void beginRun(edm::Run const&, edm::EventSetup const&);
