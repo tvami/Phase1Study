@@ -1,6 +1,6 @@
 # Source: PilotBladeStudy copied and modified
 # Author: Tamas Almos Vami
-# Year: 2015
+# Year: 2016
 # Description: Phase1 MC Simulation NTuplizer
 
 import FWCore.ParameterSet.Config as cms
@@ -23,7 +23,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 # ------------------- Input ----------------------------
 nEvents = 'test'
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(-1)
+  input = cms.untracked.int32(10)
 )
 
 process.source = cms.Source("PoolSource",
@@ -51,8 +51,8 @@ process.configurationMetadata = cms.untracked.PSet(
 
 # --------------------- GlobalTag ----------------------
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
-#process.GlobalTag = GlobalTag(process.GlobalTag, '75X_dataRun2_Prompt_v2', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '76X_upgrade2017_design_v9', '')
 #-------------------------------------------------------
 
 #---------------------- Refitter -----------------------
