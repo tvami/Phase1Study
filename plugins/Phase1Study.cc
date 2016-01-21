@@ -1,4 +1,4 @@
-#include "PilotBladeStudy.h"
+#include "Phase1Study.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 using namespace std;
@@ -6,7 +6,7 @@ using namespace edm;
 using namespace reco;
 
 // ------------------------- Constructor & Destructor  ------------------------
-PilotBladeStudy::PilotBladeStudy(edm::ParameterSet const& iConfig) : iConfig_(iConfig) {
+Phase1Study::Phase1Study(edm::ParameterSet const& iConfig) : iConfig_(iConfig) {
   eventTree_=NULL;
   trajTree_=NULL;
   clustTree_=NULL;
@@ -19,16 +19,15 @@ PilotBladeStudy::PilotBladeStudy(edm::ParameterSet const& iConfig) : iConfig_(iC
   tok_BS_           = consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
   tok_siPixelDigis_ = consumes< edm::DetSetVector<SiPixelRawDataError> >(edm::InputTag("siPixelDigis"));
   tok_siPixelClusters_ = consumes< edmNew::DetSetVector<SiPixelCluster> >(edm::InputTag("siPixelClusters"));
-  tok_PBClusters_ = consumes< edmNew::DetSetVector<SiPixelCluster> >(edm::InputTag("PBClusters"));
   tok_Refitter_ = consumes< edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>,std::vector<reco::Track>,unsigned short> > >(edm::InputTag("Refitter"));
 //   tok_conditionsInEdm_ = consumes<edm::ConditionsInRunBlock>(edm::InputTag("conditionsInEdm")); // several errors using this
 
 }
 
-PilotBladeStudy::~PilotBladeStudy() { }
+Phase1Study::~Phase1Study() { }
 
 // ------------------------------ beginJob ------------------------------------
-void PilotBladeStudy::beginJob() {
+void Phase1Study::beginJob() {
   
   std::string fileName="test.root";
   if (iConfig_.exists("fileName")) {  
@@ -71,14 +70,14 @@ void PilotBladeStudy::beginJob() {
 }
 
 // ------------------------------ endJob --------------------------------------
-void PilotBladeStudy::endJob() {
+void Phase1Study::endJob() {
   outfile_->Write();
   outfile_->Close();
   delete outfile_;
 }
 
 // ------------------------------ beginRun ------------------------------------
-void PilotBladeStudy::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup){
+void Phase1Study::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup){
   evt_.init();
   evt_.run = iRun.run();
   
@@ -97,7 +96,7 @@ void PilotBladeStudy::beginRun(edm::Run const& iRun, edm::EventSetup const& iSet
 }
 
 // ------------------------------ endRun -------------------------------------
-void PilotBladeStudy::endRun(edm::Run const& iRun, edm::EventSetup const& iSetup){
+void Phase1Study::endRun(edm::Run const& iRun, edm::EventSetup const& iSetup){
   // ConditionsInRunBlock
   edm::Handle<edm::ConditionsInRunBlock> condInRunBlock;
   iRun.getByLabel("conditionsInEdm", condInRunBlock);
@@ -112,12 +111,12 @@ void PilotBladeStudy::endRun(edm::Run const& iRun, edm::EventSetup const& iSetup
 }
 
 // ------------------------ beginLuminosityBlock ------------------------------
-void PilotBladeStudy::beginLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const& iSetup){
+void Phase1Study::beginLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const& iSetup){
   isNewLS_ = true;
 }
 
 // -------------------------- endLuminosityBlock ------------------------------
-void PilotBladeStudy::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const& iSetup){
+void Phase1Study::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const& iSetup){
   
   edm::Handle<LumiSummary> lumi;
   iLumi.getByLabel("lumiProducer", lumi);
@@ -150,7 +149,7 @@ void PilotBladeStudy::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm:
 }
 
 // -------------------------------- analyze -----------------------------------
-void PilotBladeStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void Phase1Study::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   bool DEBUG = false;
   if (DEBUG) std::cout << "Processing the event " << std::endl;
   //beginLuminosityBlock
@@ -279,10 +278,7 @@ void PilotBladeStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   std::map<unsigned long int, int> nclu_roc;
   std::map<unsigned long int, int> npix_roc;
 
-//   analyzeClusters(iEvent, iSetup, "siPixelClusters", federrors);
-//   analyzeClusters(iEvent, iSetup, "PBClusters", federrors);
   analyzeClusters(iEvent, iSetup, tok_siPixelClusters_, federrors); //Tav tokes
-  analyzeClusters(iEvent, iSetup, tok_PBClusters_, federrors); //Tav tokens
 
   // ----------------------- start of filling the clusTree -----------------------
   eventTree_->SetBranchAddress("event", &evt_);
@@ -394,34 +390,29 @@ void PilotBladeStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	      std::cout << "***************************\n** PilotBlade hit found! **"<< std::endl;
 	      std::cout << "***************************" << std::endl;
 	    }
-            nPBHits++;
             
-      ClustData clu1;
-            findClosestClusters(iEvent, iSetup, recHit->geographicalId().rawId(),
-        meas.lx, meas.ly, meas.dx_cl, meas.dy_cl, 
-                                tok_PBClusters_, clu1
-            );
+   #   ClustData clu1;
+   #         findClosestClusters(iEvent, iSetup, recHit->geographicalId().rawId(),
+   #    meas.lx, meas.ly, meas.dx_cl, meas.dy_cl, 
+   #                             tok_PBClusters_, clu1
+   #         );
             
-      ClustData clu2;
-            findClosestClusters(iEvent, iSetup, recHit->geographicalId().rawId(),
-                                (meas.lx-0.003301), (meas.ly+0.001494), meas.dx_cl_corr, meas.dy_cl_corr, 
-                                tok_PBClusters_, clu2
-            );
+   #   ClustData clu2;
+   #         findClosestClusters(iEvent, iSetup, recHit->geographicalId().rawId(),
+   #                             (meas.lx-0.003301), (meas.ly+0.001494), meas.dx_cl_corr, meas.dy_cl_corr, 
+   #                             tok_PBClusters_, clu2
+   #         );
             
       // Read associated cluster parameters
       if (DEBUG) std::cout << "Read associated cluster parameters" << std::endl;
       
-      meas.clu=clu1;
-      if (meas.clu.charge!=NOVAL_F) {
-        meas.norm_charge = meas.clu.charge*
-        sqrt(1.0/(1.0/pow(tan(meas.alpha),2)+1.0/pow(tan(meas.beta),2)+1.0));
-      }
+   #   meas.clu=clu1;
+   #   if (meas.clu.charge!=NOVAL_F) {
+   #     meas.norm_charge = meas.clu.charge*
+   #     sqrt(1.0/(1.0/pow(tan(meas.alpha),2)+1.0/pow(tan(meas.beta),2)+1.0));
+   #   }
 
       for (size_t i=0; i<2; i++) {
-        //std::cout << "PilotBlade dx_cl: " << meas.dx_cl[i] << std::endl;
-        //std::cout << "PilotBlade dy_cl: " << meas.dy_cl[i] << std::endl;
-        //std::cout << "PB FPIX meas.dx_cl_corr[0]: " << meas.dx_cl_corr[i] << std::endl;
-        //std::cout << "PB FPIX meas.dy_cl_corr[0]: " << meas.dy_cl_corr[i] << std::endl;
         if (meas.dx_cl[i]!=NOVAL_F) {
           meas.d_cl[i]=sqrt(meas.dx_cl[i]*meas.dx_cl[i]+meas.dy_cl[i]*meas.dy_cl[i]);
         } else {
@@ -437,7 +428,6 @@ void PilotBladeStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         meas.clu=clu;
         
         for (size_t i=0; i<2; i++) {
-          //std::cout << "Non-PB FPIX meas.dx_cl[i]: " << meas.dx_cl[i] << std::endl;
           if (meas.dx_cl[i]!=NOVAL_F) {
             meas.d_cl[i] = sqrt(meas.dx_cl[i]*meas.dx_cl[i]+meas.dy_cl[i]*meas.dy_cl[i]);
           } else {
@@ -505,8 +495,7 @@ void PilotBladeStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     return;
   }//end of the IF: (trajTrackCollectionHandle.isValid())
   
-  std::cout << "Number of PB Hits: " << nPBHits << " out of " 
-      << nHits << " in the events so far. "<<std::endl;
+  std::cout << "Number of hits in the events so far: " << nHits <<std::endl;
   
   // ----------------------- start of filling the trajTree -----------------------
   eventTree_->SetBranchAddress("event", &evt_);
@@ -563,7 +552,7 @@ void PilotBladeStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 // ------------------------------ other functions -----------------------------
 
 // ------------------------------- getModuleData ------------------------------
-PilotBladeStudy::ModuleData PilotBladeStudy::getModuleData
+Phase1Study::ModuleData Phase1Study::getModuleData
 (uint32_t rawId, const std::map<uint32_t, int>& federrors, std::string scheme) {
 
   ModuleData offline;
@@ -679,7 +668,7 @@ PilotBladeStudy::ModuleData PilotBladeStudy::getModuleData
 // ---------------------------- end of getModuleData --------------------------
 
 // ---------------------------- findClosestClusters ---------------------------
-void PilotBladeStudy::findClosestClusters(
+void Phase1Study::findClosestClusters(
   const edm::Event& iEvent, 
   const edm::EventSetup& iSetup, uint32_t rawId, 
   float lx, float ly, float* dx_cl, float* dy_cl, edm::EDGetTokenT< edmNew::DetSetVector<SiPixelCluster> > clusterColl,
@@ -704,9 +693,6 @@ void PilotBladeStudy::findClosestClusters(
   const TrackerGeometry *tkgeom = &(*tracker);
   
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > clusterCollectionHandle;
-  // clusterColl string is given as an input
-  // could be siPixelClusters or PBClusters
-//   iEvent.getByLabel(clusterColl, clusterCollectionHandle); //Tav tokens
   iEvent.getByToken(clusterColl, clusterCollectionHandle); //Tav tokens
   
   if (!clusterCollectionHandle.isValid()) {
@@ -803,12 +789,12 @@ void PilotBladeStudy::findClosestClusters(
 
 // ------------------------------ analyzeClusters -----------------------------
 
-// void PilotBladeStudy::analyzeClusters(const edm::Event& iEvent, 
+// void Phase1Study::analyzeClusters(const edm::Event& iEvent, 
 //                                          const edm::EventSetup& iSetup,  
 //                                          std::string clusterColl,
 //                                          std::map<uint32_t, int> federrors
 //                                      ) {
-void PilotBladeStudy::analyzeClusters(const edm::Event& iEvent, 
+void Phase1Study::analyzeClusters(const edm::Event& iEvent, 
                                          const edm::EventSetup& iSetup,  
                                          edm::EDGetTokenT< edmNew::DetSetVector<SiPixelCluster> > clusterColl,
                                          std::map<uint32_t, int> federrors
@@ -923,7 +909,7 @@ void PilotBladeStudy::analyzeClusters(const edm::Event& iEvent,
   }
 }
 
-int PilotBladeStudy::get_RocID_from_cluster_coords(const float& x, const float& y, const PilotBladeStudy::ModuleData& mod_on) {
+int Phase1Study::get_RocID_from_cluster_coords(const float& x, const float& y, const Phase1Study::ModuleData& mod_on) {
   if (x!=NOVAL_F&&y!=NOVAL_F) {
     if (mod_on.det==0) {
       int ny = (int)(y / 52.0);
@@ -941,7 +927,7 @@ int PilotBladeStudy::get_RocID_from_cluster_coords(const float& x, const float& 
   } else return NOVAL_I;
 }
 
-int PilotBladeStudy::get_RocID_from_local_coords(const float& lx, const float& ly, const PilotBladeStudy::ModuleData& mod_on) {
+int Phase1Study::get_RocID_from_local_coords(const float& lx, const float& ly, const Phase1Study::ModuleData& mod_on) {
   if (lx!=NOVAL_F&&ly!=NOVAL_F) {
     if (mod_on.det==0) {
       if (fabs(ly)<3.24&&((mod_on.half==0&&fabs(lx)<0.8164)||(mod_on.half==1&&fabs(lx)<0.4082))) {
@@ -970,5 +956,5 @@ int PilotBladeStudy::get_RocID_from_local_coords(const float& lx, const float& l
   || DetID == 344133892 || DetID == 344131076 || DetID == 344132100 
   || DetID == 344133124 || DetID == 344134148 )
 */
-DEFINE_FWK_MODULE(PilotBladeStudy);
+DEFINE_FWK_MODULE(Phase1Study);
 
