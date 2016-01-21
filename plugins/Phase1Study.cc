@@ -385,33 +385,33 @@ void Phase1Study::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
           meas.beta = atan2(dir.z(), dir.y());
             
           // If Pilot Blade
-          if (meas.mod.disk == 3 && meas.mod.side == 1) {
-	    if (DEBUG) {
-	      std::cout << "***************************\n** PilotBlade hit found! **"<< std::endl;
-	      std::cout << "***************************" << std::endl;
-	    }
-            
-   #   ClustData clu1;
-   #         findClosestClusters(iEvent, iSetup, recHit->geographicalId().rawId(),
-   #    meas.lx, meas.ly, meas.dx_cl, meas.dy_cl, 
-   #                             tok_PBClusters_, clu1
-   #         );
-            
-   #   ClustData clu2;
-   #         findClosestClusters(iEvent, iSetup, recHit->geographicalId().rawId(),
-   #                             (meas.lx-0.003301), (meas.ly+0.001494), meas.dx_cl_corr, meas.dy_cl_corr, 
-   #                             tok_PBClusters_, clu2
-   #         );
-            
-      // Read associated cluster parameters
-      if (DEBUG) std::cout << "Read associated cluster parameters" << std::endl;
-      
-   #   meas.clu=clu1;
-   #   if (meas.clu.charge!=NOVAL_F) {
-   #     meas.norm_charge = meas.clu.charge*
-   #     sqrt(1.0/(1.0/pow(tan(meas.alpha),2)+1.0/pow(tan(meas.beta),2)+1.0));
-   #   }
-
+//           if (meas.mod.disk == 3 && meas.mod.side == 1) {
+// 	    if (DEBUG) {
+// 	      std::cout << "***************************\n** PilotBlade hit found! **"<< std::endl;
+// 	      std::cout << "***************************" << std::endl;
+// 	    }
+//             
+//       ClustData clu1;
+//             findClosestClusters(iEvent, iSetup, recHit->geographicalId().rawId(),
+//        meas.lx, meas.ly, meas.dx_cl, meas.dy_cl, 
+//                                 tok_PBClusters_, clu1
+//             );
+//             
+//       ClustData clu2;
+//             findClosestClusters(iEvent, iSetup, recHit->geographicalId().rawId(),
+//                                 (meas.lx-0.003301), (meas.ly+0.001494), meas.dx_cl_corr, meas.dy_cl_corr, 
+//                                 tok_PBClusters_, clu2
+//             );
+//             
+//       // Read associated cluster parameters
+//       if (DEBUG) std::cout << "Read associated cluster parameters" << std::endl;
+//       
+//       meas.clu=clu1;
+//       if (meas.clu.charge!=NOVAL_F) {
+//         meas.norm_charge = meas.clu.charge*
+//         sqrt(1.0/(1.0/pow(tan(meas.alpha),2)+1.0/pow(tan(meas.beta),2)+1.0));
+//       }
+/*
       for (size_t i=0; i<2; i++) {
         if (meas.dx_cl[i]!=NOVAL_F) {
           meas.d_cl[i]=sqrt(meas.dx_cl[i]*meas.dx_cl[i]+meas.dy_cl[i]*meas.dy_cl[i]);
@@ -419,8 +419,8 @@ void Phase1Study::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
           meas.d_cl[i]=NOVAL_F;
         //std::cout << "d_cl[0]==NOVAL_F" << std::endl;
         } 
-      }
-          } else {
+      }*/
+//           } else {
       if (1) { // choose cluster found by us to FPix hits, or the ones tracking has associated
         ClustData clu;
         findClosestClusters(iEvent, iSetup, recHit->geographicalId().rawId(),
@@ -478,7 +478,7 @@ void Phase1Study::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     sqrt(1.0/(1.0/pow(tan(meas.alpha),2)+1.0/pow(tan(meas.beta),2)+1.0));
       }
       
-          } //if FPix not PB
+//           } //if FPix not PB
           
           trajmeas.push_back(meas);                              
         } else {
